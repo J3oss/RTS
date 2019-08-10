@@ -108,7 +108,7 @@ public static class PlayerUnits
         {
             var obj = selectedUnits[i];
             selectable = obj.GetComponentInParent<Unit>();
-            selectable.Move(destinations[i]);
+            selectable.Move(destinations[i],true);
         }
     }
 

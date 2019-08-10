@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 2592261632739004280}
   - component: {fileID: 2592261632739004281}
   - component: {fileID: 2592261632739004282}
-  - component: {fileID: 2616029578517311815}
+  - component: {fileID: 7709028153527867925}
   m_Layer: 9
   m_Name: Unit
   m_TagString: Untagged
@@ -99,7 +99,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0
+  m_BaseOffset: -0.08333334
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &2592261632739004282
@@ -123,8 +123,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   maxHealthPoints: 100
---- !u!65 &2616029578517311815
-BoxCollider:
+--- !u!136 &7709028153527867925
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -133,9 +133,10 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1001 &9092016261270244087
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -191,6 +192,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9500000, guid: ba24e610e0a338545b447ff44a3cf1cc, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 9950757ce202dfa4698234275bb41114, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ba24e610e0a338545b447ff44a3cf1cc, type: 3}
 --- !u!4 &9092016261269852229 stripped

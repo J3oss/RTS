@@ -5,13 +5,19 @@ using UnityEngine.AI;
 
 public class Unit : MonoBehaviour
 {
-    [SerializeField]GameObject targetAttack;
+    
     NavMeshAgent agent;
-    //Animator animator;
+    Animator animator;
+    Vector3 positionToMove;
+    //
+    bool usercommand = false;
+    //
 
     ////////////////////Attack////////////////////
+    bool firstArrive = true;
     float attackConter = 0.0f;
     float sqrAttackRange = 0.0f;
+    GameObject targetAttack;
     [SerializeField] int attackRange = 5;
     [SerializeField] int DetectionRange = 20;
     [SerializeField] int attackDamage = 25;
@@ -29,11 +35,12 @@ public class Unit : MonoBehaviour
     void Start()
     {
         targetAttack = null;
-        agent = GetComponent<NavMeshAgent>();
-        //animator = this.transform.Find("toonRTS").GetComponent<Animator>();
         attackConter = attackSpeed;
         sqrAttackRange = attackRange * attackRange;
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>();
 
+        //TODO change to network
         if (gameObject.layer == 8)
         {
             return;
@@ -51,24 +58,6 @@ public class Unit : MonoBehaviour
     {
         GetComponentInChildren<Canvas>().enabled = false;
     }
-
-    public void Move(Vector3 point)
-    {
-        targetAttack = null;
-        agent.stoppingDistance = 0;
-
-        agent.destination = point;
-    }
-    public void detect()
-    {
-        Collider[] Enemies = Physics.OverlapSphere(gameObject.transform.position, DetectionRange, enemiesLayerMask);
-        Attack(Enemies[0].gameObject);
-    }
-    public void Attack(GameObject targetToAttack)
-    {
-        targetAttack = targetToAttack;
-        agent.stoppingDistance = attackRange;
-    }
     public void takeDamage(int damage)
     {
         currentHealthPoints -= damage;
@@ -78,37 +67,151 @@ public class Unit : MonoBehaviour
         }
     }
 
+
+
+
+    public void Move(Vector3 point,bool commandUser)
+    {
+        animator.SetTrigger("isWalking");
+        positionToMove = point;
+
+        if (commandUser)
+        {
+            usercommand = true;
+            targetAttack = null;
+            agent.stoppingDistance = 0;
+            agent.destination = positionToMove;
+        }
+        else
+        {
+            usercommand = false;
+            agent.stoppingDistance = attackRange;
+            agent.destination = positionToMove;
+        }
+    }
+
+
+
+
+    public void detect()
+    {
+        Collider[] Enemies = Physics.OverlapSphere(gameObject.transform.position, DetectionRange, enemiesLayerMask);
+        if (Enemies.Length != 0)
+        {
+            //positionToMove = Enemies[0].gameObject.transform.position;
+            targetAttack = Enemies[0].gameObject;
+            Move(targetAttack.transform.position,false);
+        }
+    }
+
+    
+
     private void Update()
     {
+        //TODO change to network
         if (gameObject.layer == 8)
         {
             return;
         }
-        if (targetAttack == null)
-        {
-            detect();
-            return;
-        }
 
-        if ((gameObject.transform.position - targetAttack.transform.position).sqrMagnitude >= sqrAttackRange)
+
+
+
+
+
+
+
+
+        if (usercommand == true)
         {
-            agent.destination = targetAttack.transform.position;
+            //if i arrived
+            if ((positionToMove - gameObject.transform.position).sqrMagnitude <= 1)
+            {
+                usercommand = false;
+            }
         }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         else
         {
-            if (attackConter <= 0.0f)
+            ///if no enemies search for one and move affter him
+            if (targetAttack == null)
             {
-                Unit n = targetAttack.GetComponent<Unit>();
-                print("do damage");
-                print(attackConter);
-                n.takeDamage(attackDamage);
-                attackConter = attackSpeed;
+                animator.SetTrigger("isIdeal");
+                detect();
             }
+
+
+            // if there is an enemy
             else
             {
-                print(attackConter);
-                attackConter -= Time.deltaTime;
+                //if enemy changed position , follow him
+                if (positionToMove != targetAttack.transform.position)
+                {
+                    animator.SetTrigger("isWalking");
+                    Move(targetAttack.transform.position, false);
+                    firstArrive = true;
+                }
+
+                else
+                {
+                    //if i reached enemy , attack him
+                    if ((positionToMove - gameObject.transform.position).sqrMagnitude <= sqrAttackRange)
+                    {
+                        if (firstArrive)
+                        {
+                            animator.SetTrigger("isIdeal");
+                            firstArrive = false;
+                        }
+                        if (attackConter <= 0.0f)
+                        {
+                            animator.SetTrigger("isAttacking");
+                            Unit n = targetAttack.GetComponent<Unit>();
+                            //TODO CHANGE TO NETWORK
+                            n.takeDamage(attackDamage);
+                            attackConter = attackSpeed;
+                        }
+                        else
+                        {
+                            attackConter -= Time.deltaTime;
+                        }
+                    }
+                }
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
+        
     }
 }
